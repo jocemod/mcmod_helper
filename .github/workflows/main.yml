@@ -8,7 +8,7 @@ jobs:
       - name: package
         uses: sayyid5416/pyinstaller@v1
         with:
-          python_ver: '3.6'
+          python_ver: '3.14'
           spec: 'src/main.py'
           upload_exe_with_name: 'mcmod'
           options: -F -w, 
