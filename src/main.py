@@ -110,12 +110,13 @@ def register():
         random_delay()
         try:
             driver.find_element(by=By.CLASS_NAME, value='fc-button-label').click()
-        finally:
+        except:
             time.sleep(0.01)
         try:
             driver.find_element(by=By.ID, value='dismiss-button').click()
-        finally:
-            driver.find_element(by=By.CLASS_NAME, value='push').click()  # 推荐
+        except:
+            time.sleep(0.01)
+        driver.find_element(by=By.CLASS_NAME, value='push').click()  # 推荐
         random_delay()
         driver.get("https://center.mcmod.cn/"+visited_user+"/")  # 窜门
         random_delay()
