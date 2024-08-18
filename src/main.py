@@ -3,6 +3,7 @@ import json, random, getopt, sys, time, os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+
 from selenium.webdriver.common.by import By
 
 
@@ -17,16 +18,16 @@ def initialization_config(self):
     """"配置文件初始化"""
     file_path = "./config.json"  # 配置文件位置
     default_config = """{
-      "display_windows": "false", 
-      "cookie_refresh": 30, 
-      "user_name": "default", 
-      "password": "root123", 
-      "min_waiting_time": "0", 
-      "max_waiting_time": "5", 
-      "visited_user": "2", 
-      "recommend_mod": "https://www.mcmod.cn/class/5253.html", 
-      "uid": "2"
-    }"""  # 默认配置
+  "display_windows": false, 
+  "cookie_refresh": 30, 
+  "user_name": "default", 
+  "password": "root123", 
+  "min_waiting_time": "0", 
+  "max_waiting_time": "5", 
+  "visited_user": "2", 
+  "recommend_mod": "https://www.mcmod.cn/class/5253.html", 
+  "uid": "2"
+}"""  # 默认配置
     if os.path.exists(file_path):
         config = read_config()
         if self == 'del':
@@ -75,21 +76,21 @@ def register():
         get_cookie()  # cookie定期更新
     service = Service()
     options = Options()
+
     options.add_argument("--start-maximized")  # 启动时最大化窗口
     options.add_argument("--disable-blink-features=AutomationControlled")  # 使浏览器不显示自动化控制的信息
     # options.add_argument("--disable-gpu")  # 禁用GPU硬件加速
-    if display_windows:
-        time.sleep(0.01)  # 懒得改了,sleep一下
-    else:
+    if not display_windows:
         options.add_argument('--headless')  # 设置为无头
     options.add_argument("--disable-infobars")  # 隐藏信息栏
     options.add_argument("--disable-extensions")  # 禁用所有扩展程序
     options.add_argument("--disable-popup-blocking")  # 禁用弹出窗口拦截
     options.add_argument("--no-sandbox")  # 关闭沙盒模式（提高性能）
     options.add_argument("--disable-dev-shm-usage")  # 使用/dev/shm分区以避免共享内存问题
+    options.page_load_strategy = 'normal'
 
     # 初始化 WebDriver，并传入 ChromeDriver Service
-    driver = webdriver.Chrome(service=service, options=options)
+    driver = webdriver.Edge(service=service, options=options)
 
     with open("cookies.json", "r") as file:  # 读取cookie文件
         cookies = json.load(file)
@@ -99,8 +100,7 @@ def register():
     for cookie in cookies:  # 注入cookie
         driver.add_cookie(cookie)
     random_delay()
-    driver.refresh()  # 刷新页面以加载注入的 cookie
-    random_delay()
+    del cookie, cookies, file
     try:
         driver.get("https://center.mcmod.cn/"+str(uid)+"/#/task/")
         random_delay()
@@ -108,9 +108,16 @@ def register():
         random_delay()
         driver.get(recommend_mod)
         random_delay()
-        driver.find_element(by=By.CLASS_NAME, value='push').click()  # 推荐
+        try:
+            driver.find_element(by=By.CLASS_NAME, value='fc-button-label').click()
+        finally:
+            time.sleep(0.01)
+        try:
+            driver.find_element(by=By.ID, value='dismiss-button').click()
+        finally:
+            driver.find_element(by=By.CLASS_NAME, value='push').click()  # 推荐
         random_delay()
-        driver.get("https://center.mcmod.cn/"+visited_user+"/")  #窜门
+        driver.get("https://center.mcmod.cn/"+visited_user+"/")  # 窜门
         random_delay()
     finally:
         driver.close()

@@ -41,6 +41,8 @@ mcmod的签到助手,帮助你每天自动签到窜门和推荐模组
 
 ## 使用方式
 
-windows:下载[mcmod.exe](https://github.com/jocemod/mcmod_helper/releases/tag/main),直接运行
+需要安装浏览器,并可被系统调用**Google Chrome**以及[GoogleDriver](https://googlechromelabs.github.io/chrome-for-testing/)(下载完解压到运行目录下)
 
-linux:安装python环境和selenium库,下载源码运行
+Windows:下载[mcmod.exe](https://github.com/jocemod/mcmod_helper/releases/tag/main),直接运行
+
+Linux&MacOs:安装python环境和selenium库,下载源码运行
