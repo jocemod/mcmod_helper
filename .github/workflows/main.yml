@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 jobs:
   pyinstaller-build:
-    runs-on: <windows-latest / ubuntu-latest / ..... etc>
+    runs-on: ubuntu-latest
     steps:
       - name: package
         uses: sayyid5416/pyinstaller@v1
@@ -11,4 +11,4 @@ jobs:
           python_ver: '3.6'
           spec: 'src/main.py'
           upload_exe_with_name: 'mcmod'
-          options: --onefile, --name "My App", --windowed, 
+          options: -F -w, 
