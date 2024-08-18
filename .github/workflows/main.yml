@@ -6,9 +6,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: package
-        uses: sayyid5416/pyinstaller@v1
+      - uses: actions/setup-python@v5
         with:
-          python_ver: '3.14'
+          python-version: '3.14.0-alpha.0' 
+      - uses: sayyid5416/pyinstaller@v1
+        with:
           spec: 'src/main.py'
           upload_exe_with_name: 'mcmod'
           options: -F -w, 
