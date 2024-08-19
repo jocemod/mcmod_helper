@@ -1,4 +1,4 @@
-name: A workflow for my file
+name: package
 on:
   workflow_dispatch:
 jobs:
@@ -13,4 +13,9 @@ jobs:
         with:
           spec: 'src/main.py'
           upload_exe_with_name: 'mcmod'
-          options: -F -w, 
+          options: -F -w -n mcmod_helper, 
+      - name: Upload file
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcmod_helper
+          path: ./dist
