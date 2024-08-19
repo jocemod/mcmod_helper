@@ -12,10 +12,5 @@ jobs:
       - uses: sayyid5416/pyinstaller@v1
         with:
           spec: 'src/main.py'
-          upload_exe_with_name: 'mcmod'
+          upload_exe_with_name: 'mcmod_helper'
           options: -F -w -n mcmod_helper, 
-      - name: Upload file
-        uses: actions/upload-artifact@v4
-        with:
-          name: mcmod_helper
-          path: ./dist
