@@ -127,6 +127,8 @@ def register():
 def get_cookie():
     options = Options()
     options.add_argument("--disable-blink-features=AutomationControlled")
+    if not display_windows:
+        options.add_argument('--headless')  # 设置为无头
     driver = webdriver.Chrome(service=Service(), options=options)
 
     try:
