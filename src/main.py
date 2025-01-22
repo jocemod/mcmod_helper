@@ -22,11 +22,12 @@ def initialization_config(self):
   "cookie_refresh": 30, 
   "user_name": "default", 
   "password": "root123", 
-  "min_waiting_time": "0", 
-  "max_waiting_time": "5", 
+  "min_waiting_time": 0, 
+  "max_waiting_time": 5, 
   "visited_user": "2", 
   "recommend_mod": "https://www.mcmod.cn/class/5253.html", 
-  "uid": "2"
+  "uid": "2",
+  "max_retries": 3
 }"""  # 默认配置
     if os.path.exists(file_path):
         config = read_config()
@@ -41,6 +42,22 @@ def initialization_config(self):
             json_file.close()
             sys.exit()  # 生成配置文件后关闭
     return config
+
+
+# 重试装饰器
+def retry():
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            for i in range(max_retries):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    print(f"第{i+1}次尝试失败: {e}睡眠" + str(max_waiting_time) + "秒")
+                    time.sleep(min_waiting_time)
+            print("重试失败...")
+            sys.exit(1)
+        return wrapper
+    return decorator
 
 
 def random_delay():
@@ -71,6 +88,8 @@ def main(argv):
         print('--get_cookies    获取cookies\n--create_config  创建配置文件\n-h               显示命令参数')  # 指令参数
 
 
+#  每日任务的函数
+@retry()
 def register():
     if time.time() - os.path.getmtime('./cookies.json') >= cookie_refresh * 24 * 60 * 60:
         get_cookie()  # cookie定期更新
@@ -111,11 +130,11 @@ def register():
         try:
             driver.find_element(by=By.CLASS_NAME, value='fc-button-label').click()
         except:
-            time.sleep(0.01)
+            pass
         try:
             driver.find_element(by=By.ID, value='dismiss-button').click()
         except:
-            time.sleep(0.01)
+            pass
         driver.find_element(by=By.CLASS_NAME, value='push').click()  # 推荐
         random_delay()
         driver.get("https://center.mcmod.cn/"+visited_user+"/")  # 窜门
@@ -134,30 +153,34 @@ def get_cookie():
     try:
         os.remove('cookies.json')
     finally:
-        try:
-            driver.get("https://www.mcmod.cn/login/")
-            random_delay()
-            driver.find_element(by=By.ID, value='login-username').send_keys(user_name)
-            random_delay()
-            driver.find_element(by=By.ID, value='login-password').send_keys(password)
-            random_delay()
-            driver.find_element(by=By.ID, value='login-remember').click()
-            random_delay()
-            driver.find_element(by=By.ID, value='login-action-btn').click()
-            random_delay()
-            driver.refresh()
-            random_delay()
-            driver.get("https://www.mcmod.cn")
-            random_delay()
-            # 获取登录后的 cookie
-            cookies = driver.get_cookies()
+        for i in range(max_retries):
+            try:
+                driver.get("https://www.mcmod.cn/login/")
+                random_delay()
+                driver.find_element(by=By.ID, value='login-username').send_keys(user_name)
+                random_delay()
+                driver.find_element(by=By.ID, value='login-password').send_keys(password)
+                random_delay()
+                driver.find_element(by=By.ID, value='login-remember').click()
+                random_delay()
+                driver.find_element(by=By.ID, value='login-action-btn').click()
+                random_delay()
+                driver.refresh()
+                random_delay()
+                driver.get("https://www.mcmod.cn")
+                random_delay()
+                # 获取登录后的 cookie
+                cookies = driver.get_cookies()
+                driver.quit()
+                # 将 cookie 保存到文件
+                with open("cookies.json", "w") as file:
+                    json.dump(cookies, file)
+                return
+            except Exception as e:
+                print(f"第{i+1}次尝试失败: {e}睡眠"+str(max_waiting_time)+"秒")
+                time.sleep(min_waiting_time)
 
-            # 将 cookie 保存到文件
-            with open("cookies.json", "w") as file:
-                json.dump(cookies, file)
-        finally:
-            driver.quit()
-        sys.exit()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
