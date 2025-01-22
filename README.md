@@ -17,6 +17,7 @@ mcmod的签到助手,帮助你每天自动签到窜门和推荐模组
 | visited_user | 2 | 整数 | 被窜门的用户的uid |
 | recommend_mod | https://www.mcmod.cn/class/5253.html | 字符串 | 被推荐的模组的url |
 | uid | 2 | 整数 | 自己的uid |
+| max_retries | 3 | 整数 | 自动重试的最大次数 |
 
 **user_name:**
 
