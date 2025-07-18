@@ -156,7 +156,7 @@ def view():
         'Origin': 'https://center.mcmod.cn',
         'Referer': 'https://center.mcmod.cn/205548/',
     })
-    print(requests.get(url=f'https://center.mcmod.cn/{config['Visited_id']}/#/home/', headers=header).content)
+    print(requests.get(url=f"https://center.mcmod.cn/{config['Visited_id']}/#/home/", headers=header).content)
 
 
 @retry()
