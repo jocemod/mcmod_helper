@@ -13,9 +13,9 @@ config = {
     'password': 'root1234',
     'Visited_id': '2',
     'pushed_mod_id': '2',
-    'pushed_modpack_id': '1',
-    'random_time_interval': '1, 10',
+    'random_time_interval': '1,10',
     'max_retries': 5,
+    'cookie_refresh': 30,
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
 }
 header = {
@@ -52,16 +52,20 @@ def main(argv):
         opts, args = getopt.getopt(argv, "h", ["get_cookies", "create_config", "help"])
         if not opts:
             if os.path.exists('./Cookie'):
-                with open("Cookie") as cookie_file:
-                    data = json.loads(cookie_file.read())
-                    header.update({
-                        'Cookie': data['Cookie']
-                    })
-                    push()
-                    user_check_in(data=data['nCenterID'])
-                    view()
+                if time.time() - os.path.getmtime('./cookies.json') >= config['cookie_refresh'] * 86400:
+                    login()
             else:
                 login()
+            with open("Cookie") as cookie_file:
+                data = json.loads(cookie_file.read())
+                header.update({
+                    'Cookie': data['Cookie']
+                })
+                push()
+                random_delay(None)
+                user_check_in(data=data['nCenterID'])
+                random_delay(None)
+                view()
         else:
             for opt, arg in opts:
                 if opt == '-h':
@@ -107,6 +111,7 @@ def retry():
     return decorator
 
 
+@retry()
 def login():
     """登陆函数,生成cookie"""
     header.update({
@@ -133,6 +138,7 @@ def login():
         cookie_file.close()  # 写入cookie
 
 
+@retry()
 def user_check_in(data):
     """签到函数"""
     header.update({
@@ -144,14 +150,16 @@ def user_check_in(data):
     print(dousercheckin.content)
 
 
+@retry()
 def view():
     header.update({
         'Origin': 'https://center.mcmod.cn',
         'Referer': 'https://center.mcmod.cn/205548/',
     })
-    view = requests.get(url=fr'https://center.mcmod.cn/{config['Visited_id']}/#/home/', headers=header)
-    print(view.content)
+    print(requests.get(url=fr'https://center.mcmod.cn/{config['Visited_id']}/#/home/', headers=header).content)
 
+
+@retry()
 def push():
     """推荐函数"""
     header.update({
