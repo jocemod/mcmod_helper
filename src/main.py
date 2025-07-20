@@ -52,7 +52,7 @@ def main(argv):
         opts, args = getopt.getopt(argv, "h", ["get_cookies", "create_config", "help"])
         if not opts:
             if os.path.exists('./Cookie'):
-                if time.time() - os.path.getmtime('./cookies.json') >= config['cookie_refresh'] * 86400:
+                if time.time() - os.path.getmtime('./cookie') >= config['cookie_refresh'] * 86400:
                     login()
             else:
                 login()
